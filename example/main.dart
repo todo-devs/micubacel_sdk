@@ -33,4 +33,23 @@ void main(List<String> args) async {
   print('Expire: ' + data['expire']);
   print('Only LTE: ' + data['lte']);
   print('All Networks: ' + data['all']);
+
+  var products = client.products;
+  Product buyProduct;
+
+  for (var p in products) {
+    print('\n');
+    print('Product: ${p.title}');
+    print(p.description);
+    print('Price: ${p.price}');
+
+    if (p.title == 'Paquete 1 GB') {
+      buyProduct = p;
+    }
+  }
+
+  var buyResponse = client.buy(buyProduct);
+
+  print('\nBUY RESPONSE: ');
+  print(buyResponse);
 }

@@ -7,6 +7,7 @@ import 'package:cookie_jar/cookie_jar.dart';
 import 'package:html/dom.dart';
 import 'package:html/parser.dart';
 import 'package:micubacel_sdk/src/constants.dart';
+import 'package:micubacel_sdk/src/models/Product.dart';
 
 class CubacelClient {
   var cookieJar = CookieJar();
@@ -17,6 +18,7 @@ class CubacelClient {
   var currentPage = Document();
   var homePage = Document();
   var myAccountPage = Document();
+  var productsPage = Document();
 
   String get welcomeMessage {
     return homePage
@@ -225,6 +227,18 @@ class CubacelClient {
   }
   // End MyAccount Scrapping Helpers
 
+  // Products
+  List<Product> get products {
+    var list = List<Product>();
+
+    for (var e
+        in productsPage.querySelectorAll('div[class="product_inner_block"]')) {
+      list.add(Product(element: e));
+    }
+
+    return list;
+  }
+
   CubacelClient() {
     // No verificar certificado https
     (httpClient.httpClientAdapter as DefaultHttpClientAdapter)
@@ -272,6 +286,7 @@ class CubacelClient {
     } else {
       await loadHomePage();
       await loadMyAccount();
+      await loadProducts();
     }
   }
 
@@ -321,7 +336,7 @@ class CubacelClient {
 
   Future loadMyAccount() async {
     if (urlsMCP['myAccount'] != null) {
-      var res = await httpClient.get(urlsMCP['myAccount']);
+      final res = await httpClient.get(urlsMCP['myAccount']);
       myAccountPage = parse(res.data);
 
       urlsMCP['changeBonusServices'] = BASE_URL +
@@ -329,5 +344,31 @@ class CubacelClient {
               .querySelector('form[id="toogle-internet"]')
               .attributes['action'];
     }
+  }
+
+  Future loadProducts() async {
+    if (urlsMCP['products'] != null) {
+      final res = await httpClient.get(urlsMCP['products']);
+      productsPage = parse(res.data);
+    }
+  }
+
+  Future<String> buy(Product product) async {
+    var res = await httpClient.get(BASE_URL + product.urlBuyAction);
+    var page = parse(res.data);
+
+    var urlBuy = page
+        .querySelector(
+            'a[class="offerPresentationProductBuyLink_msdp button_style link_button"]')
+        .attributes['href'];
+
+    res = await httpClient.get(BASE_URL + urlBuy);
+    page = parse(res.data);
+
+    return page
+        .querySelector('div[class="products_purchase_details_block"]')
+        .querySelectorAll('p')
+        .last
+        .text;
   }
 }

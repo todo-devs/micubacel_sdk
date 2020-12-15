@@ -1,6 +1,7 @@
 name: micubacel_sdk
 description: SDK to work with mi.cubacel.net web page
 version: 0.0.1
+repository: https://github.com/todo-devs/micubacel_sdk
 
 environment:
   sdk: ">=2.1.0 <3.0.0"

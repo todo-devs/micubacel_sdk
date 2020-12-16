@@ -152,11 +152,25 @@ class CubacelClient {
         ' ' +
         col2.querySelector('.expires_hours').text;
 
-    data['lte'] =
-        col1.querySelector('.network_all').text.split(':').last.trim();
+    var network_all = col1.querySelectorAll('.network_all');
 
-    data['all'] =
-        col1.querySelector('.network_all_cero').text.split(':').last.trim();
+    if (network_all.length == 2) {
+      data['lte'] = network_all.first.text.split(':').last.trim();
+
+      data['all'] = network_all.last.text.split(':').last.trim();
+    } else if (network_all.length == 1) {
+      var e = network_all.first;
+
+      if (e.text.split(':').first.trim() == 'Para todas las redes:') {
+        data['all'] = e.text.split(':').last.trim();
+        data['lte'] = '0 B';
+      } else {
+        data['lte'] = e.text.split(':').last.trim();
+        data['all'] = '0 B';
+      }
+    } else {
+      data['all'] = data['lte'] = '0 B';
+    }
 
     return data;
   }

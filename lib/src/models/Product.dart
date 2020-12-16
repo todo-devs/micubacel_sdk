@@ -13,7 +13,8 @@ class Product {
         .querySelector(
             'div[class="offerPresentationProductDescription_msdp product_desc"]')
         .querySelector('span')
-        .text;
+        .text
+        .trim();
   }
 
   String get price {

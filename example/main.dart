@@ -48,7 +48,7 @@ void main(List<String> args) async {
     }
   }
 
-  var buyResponse = client.buy(buyProduct);
+  var buyResponse = await client.buy(buyProduct);
 
   print('\nBUY RESPONSE: ');
   print(buyResponse);

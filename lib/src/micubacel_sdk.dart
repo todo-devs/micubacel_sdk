@@ -14,6 +14,12 @@ class CubacelClient {
   var httpClient = Dio();
 
   var urlsMCP = Map<String, String>();
+  var status = {
+    'login': false,
+    'home': false,
+    'account': false,
+    'products': false,
+  };
 
   var currentPage = Document();
   var homePage = Document();
@@ -29,7 +35,7 @@ class CubacelClient {
 
   String get userName {
     var username = welcomeMessage.replaceFirst('Bienvenido ', '');
-    return username.replaceFirst('a MiCubacel', '');
+    return username.replaceFirst('a MiCubacel', '').trim();
   }
 
   String get phoneNumber {
@@ -265,7 +271,7 @@ class CubacelClient {
     httpClient.interceptors.add(CookieManager(cookieJar));
   }
 
-  Future login(String phoneNumber, String password) async {
+  Future<String> login(String phoneNumber, String password) async {
     await httpClient.get(WELCOME_LOGIN_ES_URL);
 
     var formData = {
@@ -296,11 +302,17 @@ class CubacelClient {
           .querySelector('b')
           .text;
 
-      print(msg);
+      return msg.trim();
     } else {
       await loadHomePage();
       await loadMyAccount();
-      await loadProducts();
+
+      status['products'] = false;
+      loadProducts();
+
+      status['login'] = true;
+
+      return 'ok';
     }
   }
 
@@ -346,6 +358,8 @@ class CubacelClient {
           break;
       }
     }
+
+    status['home'] = true;
   }
 
   Future loadMyAccount() async {
@@ -357,6 +371,8 @@ class CubacelClient {
           myAccountPage
               .querySelector('form[id="toogle-internet"]')
               .attributes['action'];
+
+      status['account'] = true;
     }
   }
 
@@ -364,11 +380,13 @@ class CubacelClient {
     if (urlsMCP['products'] != null) {
       final res = await httpClient.get(urlsMCP['products']);
       productsPage = parse(res.data);
+
+      status['products'] = true;
     }
   }
 
-  Future<String> buy(Product product) async {
-    var res = await httpClient.get(BASE_URL + product.urlBuyAction);
+  Future<String> buy(String urlBuyAction) async {
+    var res = await httpClient.get(BASE_URL + urlBuyAction);
     var page = parse(res.data);
 
     var urlBuy = page

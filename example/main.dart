@@ -34,6 +34,7 @@ void main(List<String> args) async {
   print('Only LTE: ' + data['lte']);
   print('All Networks: ' + data['all']);
 
+  if (!client.status['products']) await client.loadProducts();
   var products = client.products;
   Product buyProduct;
 
@@ -48,7 +49,7 @@ void main(List<String> args) async {
     }
   }
 
-  var buyResponse = await client.buy(buyProduct);
+  var buyResponse = await client.buy(buyProduct.urlBuyAction);
 
   print('\nBUY RESPONSE: ');
   print(buyResponse);

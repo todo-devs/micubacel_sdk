@@ -33,4 +33,13 @@ class Product {
             'a[class="offerPresentationProductBuyLink_msdp button_style link_button"]')
         .attributes['href'];
   }
+
+  Map<String, String> get asMap {
+    return {
+      'title': title,
+      'description': description,
+      'price': price,
+      'urlBuyAction': urlBuyAction,
+    };
+  }
 }

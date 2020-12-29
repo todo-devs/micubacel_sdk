@@ -14,17 +14,40 @@ class CubacelClient {
   var httpClient = Dio();
 
   var urlsMCP = Map<String, String>();
-  var status = {
+  Map<String, dynamic> status = {
     'login': false,
     'home': false,
     'account': false,
     'products': false,
+    'updated': null,
   };
 
   var currentPage = Document();
   var homePage = Document();
   var myAccountPage = Document();
   var productsPage = Document();
+
+  Function saveData;
+
+  Map<String, dynamic> get asJson {
+    return {
+      'currentPage': currentPage.outerHtml,
+      'homePage': homePage.outerHtml,
+      'myAccountPage': myAccountPage.outerHtml,
+      'productsPage': productsPage.outerHtml,
+      'status': status,
+      'urlsMCP': urlsMCP,
+    };
+  }
+
+  set asJson(Map<String, dynamic> data) {
+    this.currentPage = parse(data['currentPage']);
+    this.homePage = parse(data['homePage']);
+    this.myAccountPage = parse(data['myAccountPage']);
+    this.productsPage = parse(data['productsPage']);
+    this.status = Map.castFrom(data['status']);
+    this.urlsMCP = Map.castFrom(data['urlsMCP']);
+  }
 
   String get welcomeMessage {
     return homePage
@@ -373,7 +396,27 @@ class CubacelClient {
               .attributes['action'];
 
       status['account'] = true;
+      status['updated'] = dateTimeNow;
+      if (saveData != null) saveData();
     }
+  }
+
+  String get dateTimeNow {
+    var now = DateTime.now();
+
+    final hour = (now.hour % 12 == 0 ? now.hour : now.hour % 12)
+        .toString()
+        .padLeft(2, '0');
+
+    final min = now.minute.toString().padLeft(2, '0');
+
+    final tt = now.hour % 12 == 0 ? 'AM' : 'PM';
+
+    final day = now.day.toString().padLeft(2, '0');
+    final month = now.month.toString().padLeft(2, '0');
+    final year = now.year;
+
+    return '$day/$month/$year $hour:$min $tt';
   }
 
   Future loadProducts() async {
@@ -382,6 +425,7 @@ class CubacelClient {
       productsPage = parse(res.data);
 
       status['products'] = true;
+      if (saveData != null) saveData();
     }
   }
 
